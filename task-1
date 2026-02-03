@@ -1,0 +1,48 @@
+CREATE TABLE Students (
+    StudentID INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(50),
+    Gender CHAR(1),
+    Age INT,
+    Grade VARCHAR(2),
+    MathScore INT,
+    ScienceScore INT,
+    EnglishScore INT
+);
+INSERT INTO Students 
+(Name, Gender, Age, Grade, MathScore, ScienceScore, EnglishScore)
+VALUES
+('Arun', 'M', 20, 'A', 85, 88, 90),
+('Divya', 'F', 21, 'B', 78, 82, 80),
+('Karthik', 'M', 19, 'A', 92, 89, 94),
+('Sneha', 'F', 20, 'C', 65, 70, 68),
+('Rahul', 'M', 22, 'B', 75, 73, 77),
+('Priya', 'F', 20, 'A', 88, 90, 92),
+('Suresh', 'M', 21, 'B', 76, 74, 78),
+('Anitha', 'F', 19, 'A', 91, 93, 89),
+('Manoj', 'M', 22, 'C', 64, 66, 62),
+('Kavya', 'F', 20, 'B', 79, 81, 83);
+SELECT * FROM Students;
+SELECT 
+    AVG(MathScore) AS Avg_Math,
+    AVG(ScienceScore) AS Avg_Science,
+    AVG(EnglishScore) AS Avg_English
+FROM Students;
+SELECT *,
+       (MathScore + ScienceScore + EnglishScore) AS TotalScore
+FROM Students
+ORDER BY TotalScore DESC
+LIMIT 1;
+SELECT Grade, COUNT(*) AS StudentCount
+FROM Students
+GROUP BY Grade;
+SELECT Gender,
+       AVG(MathScore + ScienceScore + EnglishScore) AS AvgTotalScore
+FROM Students
+GROUP BY Gender;
+SELECT * 
+FROM Students
+WHERE MathScore > 80;
+UPDATE Students
+SET Grade = 'A+'
+WHERE Name = 'Arun';
+SELECT * FROM Students WHERE Name = 'Arun';
