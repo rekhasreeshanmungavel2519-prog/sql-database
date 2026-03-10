@@ -1,17 +1,17 @@
-DROP TABLE IF EXISTS student_details;
-
-CREATE TABLE student_details (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(50),
-    gender CHAR(1),
-    age INT,
-    section CHAR(1),
-    mark1 INT,
-    mark2 INT,
-    mark3 INT
+CREATE TABLE Students (
+    StudentID INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(50),
+    Gender CHAR(1),
+    Age INT,
+    Grade VARCHAR(2),
+    MathScore INT,
+    ScienceScore INT,
+    EnglishScore INT
 );
 
-INSERT INTO student_details (name, gender, age, section, mark1, mark2, mark3) VALUES
+INSERT INTO Students 
+(Name, Gender, Age, Grade, MathScore, ScienceScore, EnglishScore)
+VALUES
 ('Arun', 'M', 20, 'A', 85, 88, 90),
 ('Divya', 'F', 21, 'B', 78, 82, 80),
 ('Karthik', 'M', 19, 'A', 92, 89, 94),
@@ -23,29 +23,84 @@ INSERT INTO student_details (name, gender, age, section, mark1, mark2, mark3) VA
 ('Manoj', 'M', 22, 'C', 64, 66, 62),
 ('Kavya', 'F', 20, 'B', 79, 81, 83);
 
-SELECT * FROM student_details;
 
-SELECT name,
-       mark1 + mark2 + mark3 AS total_marks
-FROM student_details;
+CREATE TABLE Courses (
+    CourseID INT PRIMARY KEY AUTO_INCREMENT,
+    CourseName VARCHAR(50)
+);
 
-SELECT name,
-       ROUND((mark1 + mark2 + mark3)/3,2) AS average_marks
-FROM student_details;
+INSERT INTO Courses (CourseName) VALUES
+('Mathematics'),
+('Science'),
+('English');
 
-SELECT name,
-       ROUND((mark1 + mark2 + mark3)/3,2) AS average_marks
-FROM student_details
-ORDER BY average_marks DESC
+
+CREATE TABLE Enrollments (
+    EnrollmentID INT PRIMARY KEY AUTO_INCREMENT,
+    StudentID INT,
+    CourseID INT,
+    Grade INT,
+    FOREIGN KEY (StudentID) REFERENCES Students(StudentID),
+    FOREIGN KEY (CourseID) REFERENCES Courses(CourseID)
+);
+
+
+INSERT INTO Enrollments (StudentID, CourseID, Grade)
+SELECT StudentID, 1, MathScore FROM Students;
+
+INSERT INTO Enrollments (StudentID, CourseID, Grade)
+SELECT StudentID, 2, ScienceScore FROM Students;
+
+INSERT INTO Enrollments (StudentID, CourseID, Grade)
+SELECT StudentID, 3, EnglishScore FROM Students;
+
+
+
+
+-- Students in each course
+SELECT c.CourseName, s.Name, e.Grade
+FROM Enrollments e
+JOIN Students s ON s.StudentID = e.StudentID
+JOIN Courses c ON c.CourseID = e.CourseID
+ORDER BY c.CourseName;
+
+-- Average marks per course
+SELECT c.CourseName, AVG(e.Grade) AS AvgMarks
+FROM Enrollments e
+JOIN Courses c ON c.CourseID = e.CourseID
+GROUP BY c.CourseName;
+
+-- Top 3 students overall
+SELECT s.Name, SUM(e.Grade) AS TotalMarks
+FROM Enrollments e
+JOIN Students s ON s.StudentID = e.StudentID
+GROUP BY s.Name
+ORDER BY TotalMarks DESC
 LIMIT 3;
 
-SELECT section,
-       ROUND(AVG((mark1 + mark2 + mark3)/3),2) AS section_average
-FROM student_details
-GROUP BY section;
+SELECT c.CourseName, s.Name, e.Grade
+FROM Enrollments e
+JOIN Students s ON s.StudentID = e.StudentID
+JOIN Courses c ON c.CourseID = e.CourseID
+ORDER BY c.CourseName, e.Grade DESC;
 
-SELECT name
-FROM student_details
-WHERE mark1 < 40
-   OR mark2 < 40
-   OR mark3 < 40;
+SELECT c.CourseName,
+       COUNT(*) AS TotalStudents,
+       SUM(CASE WHEN e.Grade >= 40 THEN 1 ELSE 0 END) AS PassedStudents
+FROM Enrollments e
+JOIN Courses c ON c.CourseID = e.CourseID
+GROUP BY c.CourseName;
+
+
+SELECT s.Name, SUM(e.Grade) AS TotalMarks
+FROM Enrollments e
+JOIN Students s ON s.StudentID = e.StudentID
+GROUP BY s.Name
+ORDER BY TotalMarks DESC
+LIMIT 1;
+
+SELECT s.Name, COUNT(e.CourseID) AS CourseCount
+FROM Enrollments e
+JOIN Students s ON s.StudentID = e.StudentID
+GROUP BY s.Name
+HAVING COUNT(e.CourseID) > 1;
